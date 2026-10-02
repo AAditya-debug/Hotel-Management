@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AURA | Modern Luxury Hotel Management System</title>
+  
+  <!-- Modern Google Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Font Awesome 6 Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Glassmorphism Stylesheet -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Dynamic Ambient Glows -->
+  <div class="ambient-glow-1"></div>
+  <div class="ambient-glow-2"></div>
+
+  <div class="app-wrapper">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-icon-box">
+          <i class="fa-solid fa-hotel"></i>
+        </div>
+        <div class="brand-text">
+          <h1>AURA GRAND</h1>
+          <span>Hotel System</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-title">Main Menu</div>
+        <a class="nav-item active" data-tab="dashboard">
+          <i class="fa-solid fa-chart-pie"></i>
+          <span>Dashboard</span>
+        </a>
+        <a class="nav-item" data-tab="rooms">
+          <i class="fa-solid fa-bed"></i>
+          <span>Rooms Management</span>
+        </a>
+        <a class="nav-item" data-tab="guests">
+          <i class="fa-solid fa-users"></i>
+          <span>Guests Directory</span>
+        </a>
+        <a class="nav-item" data-tab="bookings">
+          <i class="fa-solid fa-calendar-check"></i>
+          <span>Bookings & Stays</span>
+        </a>
+
+        <div class="nav-section-title" style="margin-top: 14px;">System & Database</div>
+        <a class="nav-item" data-tab="database">
+          <i class="fa-solid fa-database"></i>
+          <span>PostgreSQL Inspector</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="db-pill" id="dbStatusPill">
+          <div>
+            <span class="db-status-dot" id="dbDot"></span>
+            <span style="font-weight: 600;" id="dbStatusText">PostgreSQL</span>
+          </div>
+          <span style="font-size: 0.72rem; color: var(--text-dim);" id="dbPortLabel">5432</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Top Navbar -->
+      <header class="top-navbar">
+        <div style="display: flex; align-items: center;">
+          <button class="mobile-menu-btn" id="mobileToggle">
+            <i class="fa-solid fa-bars"></i>
+          </button>
+          <div class="nav-page-title">
+            <h2 id="pageTitle">Dashboard Overview</h2>
+          </div>
+        </div>
+
+        <div class="nav-actions">
+          <button class="btn-ghost" id="btnRefresh" title="Refresh All Data">
+            <i class="fa-solid fa-rotate"></i>
+            <span>Refresh</span>
+          </button>
+          <button class="btn-quick-action" id="btnNewBooking">
+            <i class="fa-solid fa-plus"></i>
+            <span>New Booking</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Page Content Area -->
+      <div class="page-container">
+
+        <!-- ==================== TAB 1: DASHBOARD ==================== -->
+        <section class="tab-pane active" id="tab-dashboard">
+          <!-- Stats Grid -->
+          <div class="stats-grid">
+            <div class="glass-card stat-card">
+              <div class="stat-icon indigo">
+                <i class="fa-solid fa-door-open"></i>
+              </div>
+              <div class="stat-info">
+                <div class="stat-label">Total Rooms</div>
+                <div class="stat-value" id="statTotalRooms">--</div>
+                <div class="stat-sub" id="statRoomsSub">Loading rooms...</div>
+              </div>
+            </div>
+
+            <div class="glass-card stat-card">
+              <div class="stat-icon emerald">
+                <i class="fa-solid fa-circle-check"></i>
+              </div>
+              <div class="stat-info">
+                <div class="stat-label">Available Rooms</div>
+                <div class="stat-value" id="statAvailableRooms">--</div>
+                <div class="stat-sub" id="statOccupancy">--% Occupancy</div>
+              </div>
+            </div>
+
+            <div class="glass-card stat-card">
+              <div class="stat-icon amber">
+                <i class="fa-solid fa-user-group"></i>
+              </div>
+              <div class="stat-info">
+                <div class="stat-label">Total Guests</div>
+                <div class="stat-value" id="statTotalGuests">--</div>
+                <div class="stat-sub">Registered profiles</div>
+              </div>
+            </div>
+
+            <div class="glass-card stat-card">
+              <div class="stat-icon rose">
+                <i class="fa-solid fa-dollar-sign"></i>
+              </div>
+              <div class="stat-info">
+                <div class="stat-label">Total Revenue</div>
+                <div class="stat-value" id="statTotalRevenue">$0.00</div>
+                <div class="stat-sub" id="statBookingsCount">From -- bookings</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Actions & Recent Activity -->
+          <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px;">
+            <!-- Recent Bookings Card -->
+            <div class="glass-card">
+              <div class="section-header" style="margin-bottom: 16px;">
+                <div class="section-title">
+                  <h3>Recent Bookings</h3>
+                  <p>Latest reservations recorded in PostgreSQL</p>
+                </div>
+                <button class="btn-ghost" onclick="app.switchTab('bookings')">View All</button>
+              </div>
+              <div class="table-responsive">
+                <table class="glass-table">
+                  <thead>
+                    <tr>
+                      <th>Booking #</th>
+                      <th>Guest</th>
+                      <th>Room</th>
+                      <th>Dates</th>
+                      <th>Amount</th>
+                    </tr>
+                  </thead>
+                  <tbody id="dashboardRecentBookingsTable">
+                    <tr><td colspan="5" style="text-align: center; color: var(--text-dim);">Loading bookings...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Quick Management & Server Info -->
+            <div style="display: flex; flex-direction: column; gap: 20px;">
+              <div class="glass-card">
+                <h4 style="margin-bottom: 12px; font-size: 1rem; color: #fff;">Quick Shortcuts</h4>
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                  <button class="btn-ghost" style="justify-content: flex-start;" onclick="app.openModal('roomModal')">
+                    <i class="fa-solid fa-plus-circle" style="color: var(--primary);"></i>
+                    <span>Add New Room</span>
+                  </button>
+                  <button class="btn-ghost" style="justify-content: flex-start;" onclick="app.openModal('guestModal')">
+                    <i class="fa-solid fa-user-plus" style="color: var(--accent-emerald);"></i>
+                    <span>Register New Guest</span>
+                  </button>
+                  <button class="btn-ghost" style="justify-content: flex-start;" onclick="app.openModal('bookingModal')">
+                    <i class="fa-solid fa-bookmark" style="color: var(--accent-gold);"></i>
+                    <span>Create Reservation</span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="glass-card" style="background: rgba(15, 23, 42, 0.4);">
+                <h4 style="margin-bottom: 10px; font-size: 0.92rem; color: #cbd5e1;">Database & Architecture</h4>
+                <p style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.6;">
+                  Connected via <strong>PostgreSQL JDBC Driver</strong> with <strong>HikariCP Connection Pool</strong>. Data is securely persisted and inspectable via <strong>pgAdmin 4</strong>.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== TAB 2: ROOMS MANAGEMENT ==================== -->
+        <section class="tab-pane" id="tab-rooms">
+          <div class="section-header">
+            <div class="section-title">
+              <h3>Hotel Rooms</h3>
+              <p>Manage room inventory, pricing, and live availability</p>
+            </div>
+            <div class="filter-bar">
+              <div class="search-input-group">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" class="search-input" id="roomSearchInput" placeholder="Search room # or type...">
+              </div>
+              <select class="select-filter" id="roomAvailabilityFilter">
+                <option value="all">All Statuses</option>
+                <option value="available">Available Only</option>
+                <option value="booked">Occupied / Booked</option>
+              </select>
+              <select class="select-filter" id="roomTypeFilter">
+                <option value="all">All Room Types</option>
+              </select>
+              <button class="btn-quick-action" onclick="app.openModal('roomModal')">
+                <i class="fa-solid fa-plus"></i> Add Room
+              </button>
+            </div>
+          </div>
+
+          <!-- Room Cards Grid -->
+          <div class="room-grid" id="roomsGridContainer">
+            <!-- Dynamically populated room cards -->
+          </div>
+        </section>
+
+        <!-- ==================== TAB 3: GUESTS DIRECTORY ==================== -->
+        <section class="tab-pane" id="tab-guests">
+          <div class="section-header">
+            <div class="section-title">
+              <h3>Guest Directory</h3>
+              <p>Manage customer profiles, contact info, and history</p>
+            </div>
+            <div class="filter-bar">
+              <div class="search-input-group">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" class="search-input" id="guestSearchInput" placeholder="Search by name, email, or phone...">
+              </div>
+              <button class="btn-quick-action" onclick="app.openModal('guestModal')">
+                <i class="fa-solid fa-user-plus"></i> Add Guest
+              </button>
+            </div>
+          </div>
+
+          <div class="glass-card" style="padding: 0; overflow: hidden;">
+            <div class="table-responsive">
+              <table class="glass-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Full Name</th>
+                    <th>Email Address</th>
+                    <th>Phone Number</th>
+                    <th style="text-align: right;">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="guestsTableBody">
+                  <tr><td colspan="5" style="text-align: center; color: var(--text-dim); padding: 30px;">Loading guests...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== TAB 4: BOOKINGS & STAYS ==================== -->
+        <section class="tab-pane" id="tab-bookings">
+          <div class="section-header">
+            <div class="section-title">
+              <h3>Reservations & Bookings</h3>
+              <p>Track check-ins, check-outs, amounts, and generate invoices</p>
+            </div>
+            <div class="filter-bar">
+              <div class="search-input-group">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" class="search-input" id="bookingSearchInput" placeholder="Search by guest, room, or ID...">
+              </div>
+              <button class="btn-quick-action" onclick="app.openModal('bookingModal')">
+                <i class="fa-solid fa-plus"></i> New Reservation
+              </button>
+            </div>
+          </div>
+
+          <div class="glass-card" style="padding: 0; overflow: hidden;">
+            <div class="table-responsive">
+              <table class="glass-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Guest</th>
+                    <th>Room</th>
+                    <th>Check-In</th>
+                    <th>Check-Out</th>
+                    <th>Nights</th>
+                    <th>Total Price</th>
+                    <th style="text-align: right;">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="bookingsTableBody">
+                  <tr><td colspan="8" style="text-align: center; color: var(--text-dim); padding: 30px;">Loading bookings...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== TAB 5: POSTGRESQL INSPECTOR ==================== -->
+        <section class="tab-pane" id="tab-database">
+          <div class="section-header">
+            <div class="section-title">
+              <h3>PostgreSQL Database Inspector</h3>
+              <p>Live JDBC connection metrics, schema details, and pgAdmin 4 instructions</p>
+            </div>
+            <button class="btn-ghost" onclick="app.checkSystemStatus(true)">
+              <i class="fa-solid fa-arrows-rotate"></i> Ping Connection
+            </button>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+            <!-- Database Connection Card -->
+            <div class="glass-card">
+              <h4 style="margin-bottom: 16px; font-size: 1.1rem; color: #fff;">
+                <i class="fa-solid fa-server" style="color: var(--primary); margin-right: 8px;"></i>
+                JDBC DataSource Status
+              </h4>
+              <div id="dbStatusDetails">
+                <p style="color: var(--text-dim);">Checking database status...</p>
+              </div>
+            </div>
+
+            <!-- pgAdmin 4 Integration Info -->
+            <div class="glass-card">
+              <h4 style="margin-bottom: 16px; font-size: 1.1rem; color: #fff;">
+                <i class="fa-solid fa-cube" style="color: var(--accent-gold); margin-right: 8px;"></i>
+                pgAdmin 4 Guide
+              </h4>
+              <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 12px;">
+                You can manage, inspect, or query this database directly using <strong>pgAdmin 4</strong>:
+              </p>
+              <ul style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.8; margin-left: 20px;">
+                <li><strong>Server:</strong> PostgreSQL (Port 5432)</li>
+                <li><strong>Database Name:</strong> <code style="color: #a5b4fc; background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 4px;">hotel_db</code></li>
+                <li><strong>Tables:</strong> <code style="color: #6ee7b7;">rooms</code>, <code style="color: #6ee7b7;">guests</code>, <code style="color: #6ee7b7;">bookings</code></li>
+                <li><strong>Schema Script:</strong> <code style="color: #fde047;">database/schema.sql</code></li>
+                <li><strong>Sample Seed:</strong> <code style="color: #fde047;">database/seed.sql</code></li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- ==================== MODALS ==================== -->
+
+  <!-- 1. ROOM MODAL -->
+  <div class="modal-backdrop" id="roomModal">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3 id="roomModalTitle">Add New Room</h3>
+        <button class="modal-close" onclick="app.closeModal('roomModal')">&times;</button>
+      </div>
+      <form id="roomForm" onsubmit="app.handleRoomSubmit(event)">
+        <div class="modal-body">
+          <input type="hidden" id="roomId">
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="roomNumber">Room Number *</label>
+              <input type="text" id="roomNumber" class="form-control" placeholder="e.g. 101, 204A" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="roomType">Room Type *</label>
+              <input type="text" id="roomType" class="form-control" placeholder="e.g. Deluxe Suite" required list="roomTypeSuggestions">
+              <datalist id="roomTypeSuggestions">
+                <option value="Deluxe Single">
+                <option value="Deluxe Double">
+                <option value="Executive Suite">
+                <option value="Ocean View Suite">
+                <option value="Presidential Penthouse">
+                <option value="Standard Single">
+                <option value="Family Villa">
+              </datalist>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="roomPrice">Price per Night ($) *</label>
+              <input type="number" id="roomPrice" class="form-control" step="0.01" min="1" placeholder="150.00" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="roomAvailable">Status</label>
+              <select id="roomAvailable" class="form-control">
+                <option value="true">Available</option>
+                <option value="false">Booked / Occupied</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-ghost" onclick="app.closeModal('roomModal')">Cancel</button>
+          <button type="submit" class="btn-quick-action" id="btnSaveRoom">Save Room</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 2. GUEST MODAL -->
+  <div class="modal-backdrop" id="guestModal">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3 id="guestModalTitle">Register New Guest</h3>
+        <button class="modal-close" onclick="app.closeModal('guestModal')">&times;</button>
+      </div>
+      <form id="guestForm" onsubmit="app.handleGuestSubmit(event)">
+        <div class="modal-body">
+          <input type="hidden" id="guestId">
+          
+          <div class="form-group">
+            <label class="form-label" for="guestFullName">Full Name *</label>
+            <input type="text" id="guestFullName" class="form-control" placeholder="e.g. Sophia Martinez" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="guestEmail">Email Address *</label>
+            <input type="email" id="guestEmail" class="form-control" placeholder="sophia@example.com" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="guestPhone">Phone Number *</label>
+            <input type="text" id="guestPhone" class="form-control" placeholder="+1-555-0192" required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-ghost" onclick="app.closeModal('guestModal')">Cancel</button>
+          <button type="submit" class="btn-quick-action" id="btnSaveGuest">Save Guest</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 3. BOOKING MODAL -->
+  <div class="modal-backdrop" id="bookingModal">
+    <div class="modal-container" style="max-width: 580px;">
+      <div class="modal-header">
+        <h3 id="bookingModalTitle">Create New Reservation</h3>
+        <button class="modal-close" onclick="app.closeModal('bookingModal')">&times;</button>
+      </div>
+      <form id="bookingForm" onsubmit="app.handleBookingSubmit(event)">
+        <div class="modal-body">
+          <input type="hidden" id="bookingId">
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="bookingRoomSelect">Select Room *</label>
+              <select id="bookingRoomSelect" class="form-control" required onchange="app.calculateBookingTotal()">
+                <option value="">-- Choose Room --</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="bookingGuestSelect">Select Guest *</label>
+              <select id="bookingGuestSelect" class="form-control" required>
+                <option value="">-- Choose Guest --</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="bookingCheckIn">Check-In Date *</label>
+              <input type="date" id="bookingCheckIn" class="form-control" required onchange="app.calculateBookingTotal()">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="bookingCheckOut">Check-Out Date *</label>
+              <input type="date" id="bookingCheckOut" class="form-control" required onchange="app.calculateBookingTotal()">
+            </div>
+          </div>
+
+          <div class="invoice-box" style="margin-bottom: 10px;">
+            <div class="invoice-row">
+              <span>Duration:</span>
+              <strong id="bookingCalcDays" style="color: #fff;">1 night</strong>
+            </div>
+            <div class="invoice-row">
+              <span>Rate per Night:</span>
+              <strong id="bookingCalcRate" style="color: #fff;">$0.00</strong>
+            </div>
+            <div class="invoice-total">
+              <span>Total Price:</span>
+              <span id="bookingCalcTotal" style="color: var(--accent-emerald);">$0.00</span>
+            </div>
+          </div>
+          <input type="hidden" id="bookingTotalAmount" value="0">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-ghost" onclick="app.closeModal('bookingModal')">Cancel</button>
+          <button type="submit" class="btn-quick-action" id="btnSaveBooking">Confirm Reservation</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 4. INVOICE / RECEIPT MODAL -->
+  <div class="modal-backdrop" id="invoiceModal">
+    <div class="modal-container" style="max-width: 600px;">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-receipt" style="color: var(--accent-gold); margin-right: 8px;"></i> Booking Invoice & Receipt</h3>
+        <button class="modal-close" onclick="app.closeModal('invoiceModal')">&times;</button>
+      </div>
+      <div class="modal-body" id="invoicePrintableArea">
+        <div style="text-align: center; margin-bottom: 20px;">
+          <h2 style="font-size: 1.4rem; color: #fff; letter-spacing: 1px;">AURA GRAND HOTEL</h2>
+          <p style="font-size: 0.8rem; color: var(--text-dim);">Official Booking Statement & Folio</p>
+        </div>
+        <div id="invoiceContent">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-ghost" onclick="app.closeModal('invoiceModal')">Close</button>
+        <button type="button" class="btn-quick-action" onclick="window.print()">
+          <i class="fa-solid fa-print"></i> Print Invoice
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Main JavaScript App -->
+  <script src="js/app.js"></script>
+</body>
+</html>
